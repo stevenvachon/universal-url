@@ -1,24 +1,24 @@
 "use strict";
+const output = {};
 let g,hasNative;
-let output = {};
 
 
 
 if (typeof window !== "undefined")
 {
-    g = window;
+	g = window;
 }
 else if (typeof global !== "undefined")
 {
-    g = global;
+	g = global;
 }
 else if (typeof self !== "undefined")
 {
-    g = self;
+	g = self;
 }
 else
 {
-    g = this;
+	g = this;
 }
 
 
@@ -26,10 +26,9 @@ else
 try
 {
 	const url = new g.URL("http://domain.com");
+	const params = new g.URLSearchParams("?param=value")
 
-	hasNative = "searchParams" in url && "href" in url;
-
-	// TODO :: test `URLSearchParams` ?
+	hasNative = "searchParams" in url && params.get("param") === "value";
 }
 catch (error)
 {
@@ -38,7 +37,7 @@ catch (error)
 
 
 
-if (hasNative === true)
+if (hasNative)
 {
 	output.URL = g.URL;
 	output.URLSearchParams = g.URLSearchParams;
@@ -53,7 +52,7 @@ else
 
 
 
-output.shim = function()
+output.shim = () =>
 {
 	g.URL = output.URL;
 	g.URLSearchParams = output.URLSearchParams;

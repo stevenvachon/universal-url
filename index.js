@@ -1,26 +1,14 @@
 "use strict";
 const hasURL = require("hasurl");
 
+const {URL, URLSearchParams} = require( hasURL() ? "url" : "whatwg-url" );
 
-
-const lib = require( hasURL(true) ? "url" : "whatwg-url" );
-
-
-
-function shim()
+const shim = () =>
 {
-	global.URL = lib.URL;
-	global.URLSearchParams = lib.URLSearchParams;
-}
-
-
-
-module.exports = 
-{
-	shim: shim, 
-	URL: lib.URL,
-	URLSearchParams: lib.URLSearchParams,
-
-	// Undocumented (for tests)
-	supportsSearchParams: hasURL(true)
+	global.URL = URL;
+	global.URLSearchParams = URLSearchParams;
 };
+
+
+
+module.exports = { shim, URL, URLSearchParams };

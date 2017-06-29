@@ -1,12 +1,13 @@
 "use strict";
-const expect = require("chai").expect;
+const {afterEach, beforeEach, describe, it} = require("mocha");
+const {expect} = require("chai");
 const Nightmare = require("nightmare");
 
 const browser = new Nightmare({ nodeIntegration:false }).goto("about:blank");
 
 
 
-function it_browser_URL(cfg)
+const it_browser_URL = cfg =>
 {
 	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
 	{
@@ -30,10 +31,10 @@ function it_browser_URL(cfg)
 			return {
 				hostname: url.hostname,
 				search: url.search,
-				//param: url.searchParams.get("param")
+				param: url.searchParams.get("param")
 			};
 		}, cfg.useGlobal)
-		.then( function(result)
+		.then(result =>
 		{
 			if (cfg.checkHost)
 			{
@@ -41,14 +42,14 @@ function it_browser_URL(cfg)
 			}
 
 			expect(result.search).to.equal("?param=value");
-			//expect(result.param).to.equal("value");
+			expect(result.param).to.equal("value");
 		});
 	});
-}
+};
 
 
 
-function it_browser_URLSearchParams(cfg)
+const it_browser_URLSearchParams = cfg =>
 {
 	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
 	{
@@ -65,7 +66,7 @@ function it_browser_URLSearchParams(cfg)
 			{
 				URLSearchParams = UniversalURL.URLSearchParams
 			}
-			
+
 			var params = new URLSearchParams("?p1=v&p2=&p2=v&p2");
 
 			// Cannot return a native instance
@@ -76,7 +77,7 @@ function it_browser_URLSearchParams(cfg)
 				p2all: params.getAll("p2")
 			};
 		}, cfg.useGlobal)
-		.then( function(result)
+		.then(result =>
 		{
 			expect(result.params).to.not.be.undefined;
 			expect(result.p1).to.equal("v");
@@ -84,11 +85,11 @@ function it_browser_URLSearchParams(cfg)
 			expect(result.p2all).to.deep.equal(["", "v", ""]);
 		});
 	});;
-}
+};
 
 
 
-function it_node_URL(cfg)
+const it_node_URL = cfg =>
 {
 	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
 	{
@@ -103,27 +104,19 @@ function it_node_URL(cfg)
 		{
 			URL = cfg.lib.URL;
 		}
-		
+
 		const url = new URL("http://faß.ExAmPlE/?param=value#hash");
 
-		expect(url.hostname).to.equal("xn--fa-hia.example");
-		expect(url.search).to.equal("?param=value");
-
-		if (cfg.lib.supportsSearchParams)
-		{
-			expect( url.searchParams ).to.not.be.undefined;
-			expect( url.searchParams.get("param") ).to.equal("value");
-		}
-		else
-		{
-			expect(url.searchParams).to.be.undefined;
-		}
+		expect( url.hostname ).to.equal("xn--fa-hia.example");
+		expect( url.search ).to.equal("?param=value");
+		expect( url.searchParams ).to.not.be.undefined;
+		expect( url.searchParams.get("param") ).to.equal("value");
 	});
-}
+};
 
 
 
-function it_node_URLSearchParams(cfg)
+const it_node_URLSearchParams = cfg =>
 {
 	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
 	{
@@ -138,7 +131,7 @@ function it_node_URLSearchParams(cfg)
 		{
 			URLSearchParams = cfg.lib.URLSearchParams;
 		}
-		
+
 		const params = new URLSearchParams("?p1=v&p2=&p2=v&p2");
 
 		expect( params ).to.not.be.undefined;
@@ -146,14 +139,13 @@ function it_node_URLSearchParams(cfg)
 		expect( params.get("p2") ).to.equal("");
 		expect( params.getAll("p2") ).to.deep.equal(["", "v", ""]);
 	});
-}
+};
 
 
 
 describe("Node.js", function()
 {
 	const lib = require("./");
-	const describe_searchParamsOnly = lib.URLSearchParams ? describe : describe.skip;
 
 
 
@@ -162,21 +154,21 @@ describe("Node.js", function()
 		global.URL = null;
 		global.URLSearchParams = null;
 	});
-	
+
 
 
 	describe("URL", function()
 	{
-		it_node_URL({ lib:lib, useGlobal:false });
-		it_node_URL({ lib:lib, useGlobal:true });
+		it_node_URL({ lib, useGlobal:false });
+		it_node_URL({ lib, useGlobal:true });
 	});
 
 
 
-	describe_searchParamsOnly("URLSearchParams", function()
+	describe("URLSearchParams", function()
 	{
-		it_node_URLSearchParams({ lib:lib, useGlobal:false });
-		it_node_URLSearchParams({ lib:lib, useGlobal:true });
+		it_node_URLSearchParams({ lib, useGlobal:false });
+		it_node_URLSearchParams({ lib, useGlobal:true });
 	});
 });
 
@@ -201,7 +193,7 @@ describe("Web Browser (without native)", function()
 
 
 
-	describe.skip("URLSearchParams", function()
+	describe("URLSearchParams", function()
 	{
 		it_browser_URLSearchParams({ useGlobal:false });
 		it_browser_URLSearchParams({ useGlobal:true });

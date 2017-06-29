@@ -1,32 +1,32 @@
 {
   "name": "universal-url",
   "description": "WHATWG URL for Node & Browser.",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "license": "MIT",
   "author": "Steven Vachon <contact@svachon.com> (https://www.svachon.com/)",
   "repository": "stevenvachon/universal-url",
   "browser": "browser.js",
   "dependencies": {
-    "hasurl": "^1.0.0-alpha",
-    "whatwg-url": "^5.0.0"
+    "hasurl": "^1.0.0",
+    "whatwg-url": "^6.0.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
-    "chai": "^4.0.1",
+    "chai": "^4.0.2",
     "mocha": "^3.4.2",
     "nightmare": "^2.10.0",
     "rimraf": "^2.6.1",
     "xvfb-maybe": "~0.2.1"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">= 6"
   },
   "scripts": {
     "posttest": "rimraf browser-built.js",
     "pretest": "browserify browser.js --global-transform [ babelify --presets [ es2015 ] ] --standalone=UniversalURL --outfile=browser-built.js",
-    "test": "xvfb-maybe mocha test --reporter=spec --check-leaks --globals=URL,URLSearchParams --bail"
+    "test": "xvfb-maybe mocha test --check-leaks --globals=URL,URLSearchParams --bail"
   },
   "files": [
     "browser.js",
