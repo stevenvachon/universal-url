@@ -15,7 +15,7 @@
     "babelify": "^7.3.0",
     "browserify": "^14.4.0",
     "chai": "^4.0.2",
-    "mocha": "^3.4.2",
+    "mocha": "^4.0.0",
     "nightmare": "^2.10.0",
     "rimraf": "^2.6.1",
     "xvfb-maybe": "~0.2.1"
