@@ -1,6 +1,6 @@
 "use strict";
 const output = {};
-let g,hasNative;
+let g, hasNative;
 
 
 

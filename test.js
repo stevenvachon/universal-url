@@ -1,19 +1,35 @@
 "use strict";
-const {afterEach, beforeEach, describe, it} = require("mocha");
+const {after, afterEach, before, beforeEach, describe, it} = require("mocha");
 const {expect} = require("chai");
-const Nightmare = require("nightmare");
+const puppeteer = require("puppeteer");
 
-const browser = new Nightmare({ nodeIntegration:false }).goto("about:blank");
+let browser, page;
 
 
 
-const it_browser_URL = cfg =>
+const openBrowser = () =>
 {
-	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
+	return puppeteer.launch({ args: ["--no-sandbox"] })
+	.then(puppeteerInstance =>
 	{
-		return browser.evaluate( function(useGlobal)
+		browser = puppeteerInstance;
+		return puppeteerInstance.newPage();
+	})
+	.then(pageInstance =>
+	{
+		page = pageInstance;
+	});
+};
+
+
+
+const it_browser_URL = ({checkHost, useGlobal}) =>
+{
+	it(`works${useGlobal ? " globally" : ""}`, () =>
+	{
+		return page.evaluate(useGlobal =>
 		{
-			var URL;
+			let URL;
 
 			if (useGlobal)
 			{
@@ -25,7 +41,7 @@ const it_browser_URL = cfg =>
 				URL = UniversalURL.URL;
 			}
 
-			var url = new URL("http://faß.ExAmPlE/?param=value");
+			const url = new URL("http://ᄯᄯᄯ.ExAmPlE/?param=value#hash");
 
 			// Cannot return a native instance
 			return {
@@ -33,12 +49,12 @@ const it_browser_URL = cfg =>
 				search: url.search,
 				param: url.searchParams.get("param")
 			};
-		}, cfg.useGlobal)
+		}, useGlobal)
 		.then(result =>
 		{
-			if (cfg.checkHost)
+			if (checkHost)
 			{
-				expect(result.hostname).to.equal("xn--fa-hia.example");
+				expect(result.hostname).to.equal("xn--brdaa.example");
 			}
 
 			expect(result.search).to.equal("?param=value");
@@ -49,13 +65,13 @@ const it_browser_URL = cfg =>
 
 
 
-const it_browser_URLSearchParams = cfg =>
+const it_browser_URLSearchParams = ({useGlobal}) =>
 {
-	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
+	it(`works${useGlobal ? " globally" : ""}`, () =>
 	{
-		return browser.evaluate( function(useGlobal)
+		return page.evaluate(useGlobal =>
 		{
-			var URLSearchParams;
+			let URLSearchParams;
 
 			if (useGlobal)
 			{
@@ -67,7 +83,7 @@ const it_browser_URLSearchParams = cfg =>
 				URLSearchParams = UniversalURL.URLSearchParams
 			}
 
-			var params = new URLSearchParams("?p1=v&p2=&p2=v&p2");
+			const params = new URLSearchParams("?p1=v&p2=&p2=v&p2");
 
 			// Cannot return a native instance
 			return {
@@ -76,7 +92,7 @@ const it_browser_URLSearchParams = cfg =>
 				p2: params.get("p2"),
 				p2all: params.getAll("p2")
 			};
-		}, cfg.useGlobal)
+		}, useGlobal)
 		.then(result =>
 		{
 			expect(result.params).to.not.be.undefined;
@@ -89,25 +105,25 @@ const it_browser_URLSearchParams = cfg =>
 
 
 
-const it_node_URL = cfg =>
+const it_node_URL = ({lib, useGlobal}) =>
 {
-	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
+	it(`works${useGlobal ? " globally" : ""}`, () =>
 	{
 		let URL;
 
-		if (cfg.useGlobal)
+		if (useGlobal)
 		{
-			cfg.lib.shim();
+			lib.shim();
 			URL = global.URL;
 		}
 		else
 		{
-			URL = cfg.lib.URL;
+			URL = lib.URL;
 		}
 
-		const url = new URL("http://faß.ExAmPlE/?param=value#hash");
+		const url = new URL("http://ᄯᄯᄯ.ExAmPlE/?param=value#hash");
 
-		expect( url.hostname ).to.equal("xn--fa-hia.example");
+		expect( url.hostname ).to.equal("xn--brdaa.example");
 		expect( url.search ).to.equal("?param=value");
 		expect( url.searchParams ).to.not.be.undefined;
 		expect( url.searchParams.get("param") ).to.equal("value");
@@ -116,20 +132,20 @@ const it_node_URL = cfg =>
 
 
 
-const it_node_URLSearchParams = cfg =>
+const it_node_URLSearchParams = ({lib, useGlobal}) =>
 {
-	it(`works${cfg.useGlobal ? " globally" : ""}`, function()
+	it(`works${useGlobal ? " globally" : ""}`, () =>
 	{
 		let URLSearchParams;
 
-		if (cfg.useGlobal)
+		if (useGlobal)
 		{
-			cfg.lib.shim();
+			lib.shim();
 			URLSearchParams = global.URLSearchParams;
 		}
 		else
 		{
-			URLSearchParams = cfg.lib.URLSearchParams;
+			URLSearchParams = lib.URLSearchParams;
 		}
 
 		const params = new URLSearchParams("?p1=v&p2=&p2=v&p2");
@@ -143,21 +159,28 @@ const it_node_URLSearchParams = cfg =>
 
 
 
-describe("Node.js", function()
+describe("Node.js", () =>
 {
 	const lib = require("./");
+	let originalURL, originalURLSearchParams;
 
 
 
-	afterEach( function()
+	before(() =>
 	{
-		global.URL = null;
-		global.URLSearchParams = null;
+		originalURL = global.URL;
+		originalURLSearchParams = global.URLSearchParams;
+	});
+
+	afterEach(() =>
+	{
+		global.URL = originalURL;
+		global.URLSearchParams = originalURLSearchParams;
 	});
 
 
 
-	describe("URL", function()
+	describe("URL", () =>
 	{
 		it_node_URL({ lib, useGlobal:false });
 		it_node_URL({ lib, useGlobal:true });
@@ -165,7 +188,7 @@ describe("Node.js", function()
 
 
 
-	describe("URLSearchParams", function()
+	describe("URLSearchParams", () =>
 	{
 		it_node_URLSearchParams({ lib, useGlobal:false });
 		it_node_URLSearchParams({ lib, useGlobal:true });
@@ -174,18 +197,26 @@ describe("Node.js", function()
 
 
 
-describe("Web Browser (without native)", function()
+describe("Web Browser (without native)", () =>
 {
-	beforeEach(() => browser.refresh().evaluate( function()
+	before(() => openBrowser());
+
+	beforeEach(() =>
 	{
-		window.URL = undefined;
-		window.URLSearchParams = undefined;
-	})
-	.then(() => browser.inject("js", "browser-built.js")));
+		return page.reload()
+		.then(() => page.evaluate(() =>
+		{
+			window.URL = undefined;
+			window.URLSearchParams = undefined;
+		}))
+		.then(() => page.addScriptTag({ path: "browser-built.js" }));
+	});
+
+	after(() => browser.close());
 
 
 
-	describe("URL", function()
+	describe("URL", () =>
 	{
 		it_browser_URL({ checkHost:true, useGlobal:false });
 		it_browser_URL({ checkHost:true, useGlobal:true });
@@ -193,7 +224,7 @@ describe("Web Browser (without native)", function()
 
 
 
-	describe("URLSearchParams", function()
+	describe("URLSearchParams", () =>
 	{
 		it_browser_URLSearchParams({ useGlobal:false });
 		it_browser_URLSearchParams({ useGlobal:true });
@@ -202,13 +233,21 @@ describe("Web Browser (without native)", function()
 
 
 
-describe("Web Browser (with native)", function()
+describe("Web Browser (with native)", () =>
 {
-	beforeEach(() => browser.refresh().inject("js", "browser-built.js"));
+	before(() => openBrowser());
+
+	beforeEach(() =>
+	{
+		return page.reload()
+		.then(() => page.addScriptTag({ path: "browser-built.js" }));
+	});
+
+	after(() => browser.close());
 
 
 
-	describe("URL", function()
+	describe("URL", () =>
 	{
 		// TODO :: `checkHost:true` when Chrome correctly converts from Unicode to ASCII
 		it_browser_URL({ checkHost:false, useGlobal:false });
@@ -217,7 +256,7 @@ describe("Web Browser (with native)", function()
 
 
 
-	describe("URLSearchParams", function()
+	describe("URLSearchParams", () =>
 	{
 		it_browser_URLSearchParams({ useGlobal:false });
 		it_browser_URLSearchParams({ useGlobal:true });
