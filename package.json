@@ -16,7 +16,7 @@
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "chai": "^4.2.0",
-    "common-shakeify": "~0.5.2",
+    "common-shakeify": "~0.6.0",
     "gzip-size-cli": "^3.0.0",
     "mocha": "^5.2.0",
     "puppeteer": "^1.10.0",
