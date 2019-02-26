@@ -1,6 +1,6 @@
 "use strict";
-const output = {};
-let g, hasNative;
+var output = {};
+var g, hasNative;
 
 
 
@@ -25,8 +25,8 @@ else
 
 try
 {
-	const url = new g.URL("http://domain.com");
-	const params = new g.URLSearchParams("?param=value")
+	var url = new g.URL("http://domain.com");
+	var params = new g.URLSearchParams("?param=value")
 
 	hasNative = "searchParams" in url && params.get("param") === "value";
 }
@@ -44,7 +44,7 @@ if (hasNative)
 }
 else
 {
-	const lib = require("whatwg-url");
+	var lib = require("whatwg-url");
 
 	output.URL = lib.URL;
 	output.URLSearchParams = lib.URLSearchParams;
@@ -52,7 +52,7 @@ else
 
 
 
-output.shim = () =>
+output.shim = function()
 {
 	g.URL = output.URL;
 	g.URLSearchParams = output.URLSearchParams;
