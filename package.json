@@ -21,7 +21,7 @@
     "mocha": "^6.1.4",
     "puppeteer": "^1.14.0",
     "rimraf": "^2.6.3",
-    "terser": "^3.17.0"
+    "terser": "^4.0.0"
   },
   "engines": {
     "node": ">= 6"
