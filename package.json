@@ -8,7 +8,7 @@
   "browser": "browser.js",
   "dependencies": {
     "hasurl": "^1.0.0",
-    "whatwg-url": "^7.0.0"
+    "whatwg-url": "^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
